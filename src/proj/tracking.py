@@ -30,22 +30,28 @@ def create_landmarker(model_path=DEFAULT_MODEL_PATH):
     return vision.HandLandmarker.create_from_options(options)
 
 
-def detect_hands(landmarker, frame, timestamp_ms):
+def detect_hands(landmarker, frame, timestamp_ms, *, include_handedness=False):
     """Detect hands in an RGB frame at the given recording timestamp."""
     image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
-    return landmarker.detect_for_video(image, timestamp_ms).hand_landmarks
+    result = landmarker.detect_for_video(image, timestamp_ms)
+    if include_handedness:
+        return result.hand_landmarks, result.handedness
+    return result.hand_landmarks
 
 
 def write_header(writer):
     header = ["timestamp_ms", "frame", "hand"]
     for index in range(21):
         header.extend(f"{axis}{index}" for axis in ("x", "y", "z"))
+    header.extend(("handedness", "handedness_score"))
     writer.writerow(header)
 
 
-def write_hands(writer, hands, timestamp_ms, frame_number):
+def write_hands(writer, hands, timestamp_ms, frame_number, handedness=None):
     for hand_index, hand in enumerate(hands):
         row = [timestamp_ms, frame_number, hand_index]
         for landmark in hand:
             row.extend((landmark.x, landmark.y, landmark.z))
+        label = handedness[hand_index][0] if handedness and handedness[hand_index] else None
+        row.extend((label.category_name if label else "", label.score if label else ""))
         writer.writerow(row)
