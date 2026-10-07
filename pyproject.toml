@@ -2,13 +2,13 @@
 name = "proj"
 version = "0.1.0"
 description = "Add your description here"
-readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "ipykernel>=7.4.0",
     "mediapipe>=1.1.0",
     "numpy>=2.5.3",
     "opencv-python>=5.0.0.93",
+    "pandas>=3.0.6",
 ]
 
 [project.scripts]
