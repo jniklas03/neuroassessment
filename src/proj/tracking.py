@@ -1,6 +1,5 @@
 """MediaPipe hand tracker setup and CSV serialization."""
 
-import os
 import urllib.request
 from pathlib import Path
 
@@ -11,13 +10,14 @@ MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/"
     "hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task"
 )
-DEFAULT_MODEL_PATH = Path("../../model").with_name("hand_landmarker.task")
+DEFAULT_MODEL_PATH = Path(__file__).resolve().parents[2] / "models" / "hand_landmarker.task"
 
 
 def create_landmarker(model_path=DEFAULT_MODEL_PATH):
     """Download a missing model and create a video-mode hand tracker."""
     model_path = Path(model_path)
     if not model_path.is_file():
+        model_path.parent.mkdir(parents=True, exist_ok=True)
         urllib.request.urlretrieve(MODEL_URL, model_path)
     options = vision.HandLandmarkerOptions(
         base_options=mp.tasks.BaseOptions(model_asset_path=str(model_path)),
