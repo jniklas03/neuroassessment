@@ -17,7 +17,7 @@ def draw_status(frame, message, active_light):
     scale = min(0.65, max(0.3, (width - 24) / 620))
     cv2.putText(frame, message, (12, 72), cv2.FONT_HERSHEY_SIMPLEX,
                 scale, (255, 255, 255), 2, cv2.LINE_AA)
-    cv2.putText(frame, "Q: stop | M: toggle sound", (12, 98),
+    cv2.putText(frame, "SPACE: start / next | Q: exit | M: sound", (12, 98),
                 cv2.FONT_HERSHEY_SIMPLEX, scale * 0.8,
                 (210, 210, 210), 1, cv2.LINE_AA)
 
