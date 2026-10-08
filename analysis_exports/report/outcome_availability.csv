@@ -1,0 +1,6 @@
+guideline_outcome,available_measure,status
+Total Task Duration,Recording duration proxy,Proxy approved; includes waiting/operator time
+P1 Reach duration,,Unavailable: no phase boundaries
+P2 Grasp duration,,Unavailable: no phase boundaries
+Peak Velocity,Peak wrist-relative fingertip speed,Exploratory; palm lengths/s
+Movement Units,Local speed peaks >10% global maximum,Exploratory; tracking/sampling dependent

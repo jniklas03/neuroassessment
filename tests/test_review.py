@@ -17,7 +17,9 @@ from scipy import stats
 from proj.landmark_replay import replay_figure
 from proj.motor_metrics import movement_series, extract_metrics, PRIMARY_METRICS
 from proj.participants import get_subject_group, read_groups
-from proj.review_data import COORDINATES, discover_trials, load_trial, prepare_group_file
+from proj.review_data import (
+    COORDINATES, discover_trials, load_trial, prepare_group_file, apply_recording_exclusions,
+)
 from proj.study_statistics import (
     compare_groups, holm_adjust, paired_condition_effects, subject_summary,
 )
@@ -53,6 +55,52 @@ def save_trial(root, subject='Alice', group='control', experiment='normal_dom',
 
 
 class ReviewTests(unittest.TestCase):
+    def test_manual_recording_exclusions_include_timing_statistics(self):
+        with tempfile.TemporaryDirectory() as directory:
+            save_trial(directory, name='keep')
+            save_trial(directory, name='exclude')
+            original = extract_metrics(discover_trials(directory))
+            metrics = apply_recording_exclusions(original, {'Alice/exclude': 'Wrong task'})
+            self.assertTrue(original.analysis_eligible.all())
+            self.assertEqual(len(metrics), 2)
+            excluded = metrics.loc[metrics.trial_id == 'Alice/exclude'].iloc[0]
+            self.assertFalse(excluded.analysis_eligible)
+            self.assertIn('Wrong task', excluded.exclusion_reason)
+            self.assertEqual(subject_summary(metrics).trial_count.tolist(), [1])
+
+            # Run the notebook's eligibility logic: usable event timing must not
+            # re-enable a recording that was manually excluded.
+            metrics['annotation_status'] = 'annotated'
+            metrics['task_outcome'] = 'success'
+            metrics['key_in_lock_seconds'] = [1., 2.]
+            notebook = json.loads((Path(__file__).parents[1] / 'src/proj/review.ipynb').read_text())
+            cell = ''.join(notebook['cells'][9]['source']).split('subjects = subject_summary')[0]
+            context = dict(trial_metrics=metrics, OUTCOMES=['key_in_lock_seconds'],
+                           TASK_OUTCOMES=['key_in_lock_seconds'], SUCCESSFUL_TASKS_ONLY=True)
+            exec(cell, context)
+            analysis = context['analysis_trials']
+            self.assertFalse(analysis.loc[analysis.trial_id == 'Alice/exclude', 'analysis_eligible'].iloc[0])
+            self.assertTrue(analysis.loc[analysis.trial_id == 'Alice/keep', 'analysis_eligible'].iloc[0])
+            with self.assertRaisesRegex(ValueError, 'Unknown excluded trial IDs'):
+                apply_recording_exclusions(original, {'Alice/typo': 'Wrong task'})
+            with self.assertRaisesRegex(ValueError, 'nonempty reason'):
+                apply_recording_exclusions(original, {'Alice/exclude': ' '})
+
+    def test_excluded_recording_is_not_loaded(self):
+        from proj.task_analysis import add_task_metrics, outcome_counts
+        with tempfile.TemporaryDirectory() as directory:
+            save_trial(directory)
+            inventory = discover_trials(directory).assign(analysis_eligible=True, exclusion_reason='')
+            inventory = apply_recording_exclusions(inventory, {'Alice/trial': 'Incomplete task'})
+            inventory = inventory.drop(columns=['analysis_eligible', 'exclusion_reason'])
+            with patch('proj.motor_metrics.load_trial', side_effect=AssertionError('Loaded excluded CSV')):
+                metrics = extract_metrics(inventory)
+            with patch('proj.task_analysis.load_annotations', side_effect=AssertionError('Loaded excluded annotations')):
+                metrics = add_task_metrics(metrics)
+            self.assertFalse(metrics.analysis_eligible.iloc[0])
+            self.assertEqual(metrics.annotation_status.iloc[0], 'manually excluded')
+            self.assertTrue(outcome_counts(metrics).empty)
+
     def test_trial_sets_legacy_and_partial_resume(self):
         from proj.session import EXPERIMENT_TYPES, create_session, latest_trial_set, remaining_experiments, save_metadata
         with tempfile.TemporaryDirectory() as directory:

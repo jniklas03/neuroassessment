@@ -1,0 +1,36 @@
+{
+  "subject_name": "Elena",
+  "experiment_type": "blind_ndom",
+  "session_id": "blind_ndom_2026-10-07_16-20-32_040469",
+  "created_at": "2026-10-07T16:20:32.040469+02:00",
+  "recording_started_at": "2026-10-07T14:20:44.154723+00:00",
+  "data_file": "hand_data.csv",
+  "status": "completed",
+  "group": "control",
+  "dominant_hand": "right",
+  "task_hand": "left",
+  "camera_index": 0,
+  "countdown_seconds": 3,
+  "sound_enabled": true,
+  "frames_recorded": 157,
+  "duration_seconds": 6.547582932998921,
+  "coordinate_system": "mediapipe_normalized_image",
+  "schema_version": 2,
+  "image_mirrored": true,
+  "task_protocol": "lock_and_key",
+  "phase_logging": "spacebar",
+  "success_assumed": true,
+  "task_description": "Start at rest, shoulder width; pick up lock and key; unlock; return to rest",
+  "image_height": 480,
+  "image_width": 640,
+  "phase_events": [
+    {
+      "event": "key_in_lock",
+      "timestamp_seconds": 2.2371403990000545
+    }
+  ],
+  "phase_log_complete": true,
+  "task_outcome": "success",
+  "key_in_lock_seconds": 2.2371403990000545,
+  "finished_at": "2026-10-07T14:20:50.740544+00:00"
+}

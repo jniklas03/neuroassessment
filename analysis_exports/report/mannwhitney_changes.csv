@@ -1,0 +1,31 @@
+metric,contrast,n_control,n_disease,u,p,rank_biserial,effect_ci_low,effect_ci_high,median_difference,method,note,p_holm
+movement_units,delta_hand,10,5,21.0,0.6786546786546787,-0.16,-0.84,0.56,-2.375,exact,,1.0
+movement_units,delta_hand_closed,10,5,24.0,0.929070929070929,-0.04,-0.76,0.64,0.25,"permutation, seed 42",,1.0
+movement_units,delta_hand_open,10,5,12.5,0.13786213786213786,-0.5,-1.0,0.26,-8.5,"permutation, seed 42",,1.0
+movement_units,delta_vision,10,5,13.0,0.1645021645021645,-0.48,-1.0,0.28,-6.25,exact,,1.0
+movement_units,delta_vision_dom,10,5,8.0,0.03996003996003995,-0.68,-1.0,-0.2,-6.5,exact,,1.0
+movement_units,delta_vision_ndom,10,5,16.5,0.327006327006327,-0.34,-0.9404999999999999,0.36,-11.5,"permutation, seed 42",,1.0
+peak_velocity,delta_hand,10,5,31.0,0.5134865134865134,0.24,-0.4,0.8409999999999945,7.551466035823297,exact,,1.0
+peak_velocity,delta_hand_closed,10,5,24.0,0.9530469530469531,-0.04,-0.68,0.64,0.9808527405972916,exact,,1.0
+peak_velocity,delta_hand_open,10,5,33.0,0.37096237096237095,0.32,-0.28,0.84,4.210972629646003,exact,,1.0
+peak_velocity,delta_vision,10,5,28.0,0.7678987678987679,0.12,-0.52,0.68,2.1215783932962315,exact,,1.0
+peak_velocity,delta_vision_dom,10,5,26.0,0.9530469530469531,0.04,-0.6,0.68,-2.4657977543086176,exact,,1.0
+peak_velocity,delta_vision_ndom,10,5,25.0,1.0,0.0,-0.68,0.68,-1.4320288314620306,exact,,1.0
+post_key_duration_seconds,delta_hand,10,5,23.0,0.8591408591408591,-0.08,-0.76,0.64,-0.07131275362490896,exact,,1.0
+post_key_duration_seconds,delta_hand_closed,10,5,26.0,0.9530469530469531,0.04,-0.64,0.76,-0.2737635955005544,exact,,1.0
+post_key_duration_seconds,delta_hand_open,10,5,33.0,0.37096237096237095,0.32,-0.4,0.96,0.6655792419994668,exact,,1.0
+post_key_duration_seconds,delta_vision,10,5,29.0,0.6786546786546787,0.16,-0.6,1.0,2.593881215000124,exact,,1.0
+post_key_duration_seconds,delta_vision_dom,10,5,29.0,0.6786546786546787,0.16,-0.6,1.0,2.220064222998417,exact,,1.0
+post_key_duration_seconds,delta_vision_ndom,10,5,27.0,0.8591408591408591,0.08,-0.6,0.76,0.38268536800114816,exact,,1.0
+recording_duration_seconds,delta_hand,10,5,23.0,0.8591408591408591,-0.08,-0.76,0.6,-0.7573345213749008,exact,,1.0
+recording_duration_seconds,delta_hand_closed,10,5,27.0,0.8591408591408591,0.08,-0.6,0.72,0.24756511349835364,exact,,1.0
+recording_duration_seconds,delta_hand_open,10,5,17.0,0.37096237096237095,-0.32,-1.0,0.44,-1.1001790860004803,exact,,1.0
+recording_duration_seconds,delta_vision,10,5,24.0,0.9530469530469531,-0.04,-0.84,0.76,-0.4257859509987725,exact,,1.0
+recording_duration_seconds,delta_vision_dom,10,5,17.0,0.37096237096237095,-0.32,-1.0,0.44,-1.0340333942492634,exact,,1.0
+recording_duration_seconds,delta_vision_ndom,10,5,27.0,0.8591408591408591,0.08,-0.6809999999999999,0.84,1.781416593500353,exact,,1.0
+time_to_key_seconds,delta_hand,10,5,18.0,0.43956043956043955,-0.28,-0.92,0.44,-0.8998385080001299,exact,,1.0
+time_to_key_seconds,delta_hand_closed,10,5,24.0,0.9530469530469531,-0.04,-0.76,0.64,0.05824021899752552,exact,,1.0
+time_to_key_seconds,delta_hand_open,10,5,10.0,0.07525807525807525,-0.6,-1.0,-0.04,-1.3656382017502438,exact,,1.0
+time_to_key_seconds,delta_vision,10,5,28.0,0.7678987678987679,0.12,-0.6,0.8,0.7725500353758434,exact,,1.0
+time_to_key_seconds,delta_vision_dom,10,5,21.0,0.6786546786546787,-0.16,-0.72,0.52,0.0988907847512337,exact,,1.0
+time_to_key_seconds,delta_vision_ndom,10,5,30.0,0.594072594072594,0.2,-0.56,0.84,1.3879772794994096,exact,,1.0

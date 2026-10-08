@@ -111,3 +111,21 @@ def load_trial(csv_path):
 
 def load_metadata(row):
     return json.loads(Path(row["metadata_path"]).read_text(encoding="utf-8"))
+
+
+def apply_recording_exclusions(trial_metrics, exclusions):
+    """Keep excluded recordings reviewable while disabling their analysis."""
+    unknown = set(exclusions) - set(trial_metrics.trial_id)
+    if unknown:
+        raise ValueError(f"Unknown excluded trial IDs: {sorted(unknown)}")
+    if any(not isinstance(reason, str) or not reason.strip() for reason in exclusions.values()):
+        raise ValueError("Each recording exclusion needs a nonempty reason")
+    result = trial_metrics.copy()
+    result["manual_exclusion_reason"] = result.trial_id.map(exclusions).fillna("")
+    result["manually_excluded"] = result.trial_id.isin(exclusions)
+    result.loc[result.manually_excluded, "analysis_eligible"] = False
+    for index in result.index[result.manually_excluded]:
+        reason = f"Manual exclusion: {result.at[index, 'manual_exclusion_reason']}"
+        existing = result.at[index, "exclusion_reason"]
+        result.at[index, "exclusion_reason"] = f"{existing}; {reason}" if existing else reason
+    return result

@@ -1,0 +1,37 @@
+{
+  "subject_name": "ms5",
+  "experiment_type": "normal_dom",
+  "trial_set": 1,
+  "session_id": "normal_dom_2026-10-08_15-43-22_057294",
+  "created_at": "2026-10-08T15:43:22.057294+02:00",
+  "recording_started_at": "2026-10-08T13:44:37.612687+00:00",
+  "data_file": "hand_data.csv",
+  "status": "completed",
+  "group": "disease",
+  "dominant_hand": "right",
+  "task_hand": "right",
+  "camera_index": 0,
+  "countdown_seconds": 3,
+  "sound_enabled": true,
+  "frames_recorded": 257,
+  "duration_seconds": 14.36437296099939,
+  "coordinate_system": "mediapipe_normalized_image",
+  "schema_version": 2,
+  "image_mirrored": true,
+  "task_protocol": "lock_and_key",
+  "phase_logging": "spacebar",
+  "success_assumed": true,
+  "task_description": "Start at rest, shoulder width; pick up lock and key; unlock; return to rest",
+  "image_height": 480,
+  "image_width": 640,
+  "phase_events": [
+    {
+      "event": "key_in_lock",
+      "timestamp_seconds": 3.9894072440001764
+    }
+  ],
+  "phase_log_complete": true,
+  "task_outcome": "success",
+  "key_in_lock_seconds": 3.9894072440001764,
+  "finished_at": "2026-10-08T13:44:52.014851+00:00"
+}

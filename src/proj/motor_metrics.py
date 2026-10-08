@@ -85,6 +85,10 @@ def extract_metrics(inventory, *, hand_selections=None, allow_legacy=False,
         row.update({metric: np.nan for metric in METRICS})
         row.update(selected_hand="", selected_frames=0, detection_coverage=np.nan,
                    max_detection_gap_seconds=np.nan, analysis_eligible=False, exclusion_reason="")
+        if trial.get("manually_excluded", False):
+            row["exclusion_reason"] = f"Manual exclusion: {trial.manual_exclusion_reason}"
+            rows.append(row)
+            continue
         reasons = []
         if trial["error"]:
             reasons.append(trial["error"])

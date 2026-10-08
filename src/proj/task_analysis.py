@@ -68,6 +68,9 @@ def add_task_metrics(trial_metrics, *, hand_selections=None, allow_legacy=False,
     result["annotation_status"] = "not annotated"
     result["phase_quality_note"] = ""
     for index, row in result.iterrows():
+        if row.get("manually_excluded", False):
+            result.loc[index, "annotation_status"] = "manually excluded"
+            continue
         if not row.csv_path:
             continue
         try:
@@ -135,6 +138,9 @@ def outcome_counts(trials):
     """Counts are descriptive trial outcomes, not independent-subject tests."""
     if trials.empty:
         return trials[["group", "experiment_type", "task_outcome"]].assign(trials=[])
-    return (trials.loc[trials.status == "completed"]
+    included = trials.status == "completed"
+    if "manually_excluded" in trials:
+        included &= ~trials.manually_excluded
+    return (trials.loc[included]
             .groupby(["group", "experiment_type", "task_outcome"]).size()
             .rename("trials").reset_index())

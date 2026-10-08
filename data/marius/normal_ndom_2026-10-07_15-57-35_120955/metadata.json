@@ -1,0 +1,36 @@
+{
+  "subject_name": "marius",
+  "experiment_type": "normal_ndom",
+  "session_id": "normal_ndom_2026-10-07_15-57-35_120955",
+  "created_at": "2026-10-07T15:57:35.120955+02:00",
+  "recording_started_at": "2026-10-07T13:57:47.682460+00:00",
+  "data_file": "hand_data.csv",
+  "status": "completed",
+  "group": "control",
+  "dominant_hand": "right",
+  "task_hand": "left",
+  "camera_index": 0,
+  "countdown_seconds": 3,
+  "sound_enabled": true,
+  "frames_recorded": 209,
+  "duration_seconds": 8.789728144998662,
+  "coordinate_system": "mediapipe_normalized_image",
+  "schema_version": 2,
+  "image_mirrored": true,
+  "task_protocol": "lock_and_key",
+  "phase_logging": "spacebar",
+  "success_assumed": true,
+  "task_description": "Start at rest, shoulder width; pick up lock and key; unlock; return to rest",
+  "image_height": 480,
+  "image_width": 640,
+  "phase_events": [
+    {
+      "event": "key_in_lock",
+      "timestamp_seconds": 4.785752944997512
+    }
+  ],
+  "phase_log_complete": true,
+  "task_outcome": "success",
+  "key_in_lock_seconds": 4.785752944997512,
+  "finished_at": "2026-10-07T13:57:56.511040+00:00"
+}

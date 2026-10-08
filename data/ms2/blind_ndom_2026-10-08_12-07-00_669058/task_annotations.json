@@ -1,0 +1,11 @@
+{
+  "key_in_lock_seconds": 3.0255614879997665,
+  "task": "lock_and_key",
+  "source": "spacebar",
+  "phase_log_complete": true,
+  "outcome": "success",
+  "success_assumed": true,
+  "recording_duration_seconds": 9.742696695999712,
+  "annotated_at": "2026-10-08T10:07:19.030419+00:00",
+  "notes": "Space marks key insertion. Success is assumed by protocol."
+}

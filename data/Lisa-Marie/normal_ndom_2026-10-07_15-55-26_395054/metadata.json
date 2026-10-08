@@ -1,0 +1,36 @@
+{
+  "subject_name": "Lisa-Marie",
+  "experiment_type": "normal_ndom",
+  "session_id": "normal_ndom_2026-10-07_15-55-26_395054",
+  "created_at": "2026-10-07T15:55:26.395054+02:00",
+  "recording_started_at": "2026-10-07T13:55:36.579151+00:00",
+  "data_file": "hand_data.csv",
+  "status": "completed",
+  "group": "control",
+  "dominant_hand": "right",
+  "task_hand": "left",
+  "camera_index": 0,
+  "countdown_seconds": 3,
+  "sound_enabled": true,
+  "frames_recorded": 91,
+  "duration_seconds": 3.8250853230019857,
+  "coordinate_system": "mediapipe_normalized_image",
+  "schema_version": 2,
+  "image_mirrored": true,
+  "task_protocol": "lock_and_key",
+  "phase_logging": "spacebar",
+  "success_assumed": true,
+  "task_description": "Start at rest, shoulder width; pick up lock and key; unlock; return to rest",
+  "image_height": 480,
+  "image_width": 640,
+  "phase_events": [
+    {
+      "event": "key_in_lock",
+      "timestamp_seconds": 1.7039183039996715
+    }
+  ],
+  "phase_log_complete": true,
+  "task_outcome": "success",
+  "key_in_lock_seconds": 1.7039183039996715,
+  "finished_at": "2026-10-07T13:55:40.444558+00:00"
+}

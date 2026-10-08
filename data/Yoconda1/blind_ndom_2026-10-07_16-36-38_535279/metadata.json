@@ -1,0 +1,36 @@
+{
+  "subject_name": "Yoconda1",
+  "experiment_type": "blind_ndom",
+  "session_id": "blind_ndom_2026-10-07_16-36-38_535279",
+  "created_at": "2026-10-07T16:36:38.535279+02:00",
+  "recording_started_at": "2026-10-07T14:36:48.293175+00:00",
+  "data_file": "hand_data.csv",
+  "status": "completed",
+  "group": "control",
+  "dominant_hand": "right",
+  "task_hand": "left",
+  "camera_index": 0,
+  "countdown_seconds": 3,
+  "sound_enabled": true,
+  "frames_recorded": 181,
+  "duration_seconds": 7.789575489001436,
+  "coordinate_system": "mediapipe_normalized_image",
+  "schema_version": 2,
+  "image_mirrored": true,
+  "task_protocol": "lock_and_key",
+  "phase_logging": "spacebar",
+  "success_assumed": true,
+  "task_description": "Start at rest, shoulder width; pick up lock and key; unlock; return to rest",
+  "image_height": 480,
+  "image_width": 640,
+  "phase_events": [
+    {
+      "event": "key_in_lock",
+      "timestamp_seconds": 3.9905289560010715
+    }
+  ],
+  "phase_log_complete": true,
+  "task_outcome": "success",
+  "key_in_lock_seconds": 3.9905289560010715,
+  "finished_at": "2026-10-07T14:36:56.121399+00:00"
+}
