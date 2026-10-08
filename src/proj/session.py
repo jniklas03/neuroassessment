@@ -44,9 +44,8 @@ def _legacy_subject_directory(subject_name, data_dir):
     return Path(data_dir) / f"{slug}_{digest}"
 
 
-def remaining_experiments(subject_name, data_dir=DEFAULT_DATA_DIR):
-    """Find unfinished experiments using this subject's saved metadata."""
-    completed = set()
+def subject_recordings(subject_name, data_dir=DEFAULT_DATA_DIR):
+    """Read this subject's trial metadata, including legacy recordings."""
     directories = (
         subject_directory(subject_name, data_dir),
         _legacy_subject_directory(subject_name, data_dir),
@@ -54,14 +53,32 @@ def remaining_experiments(subject_name, data_dir=DEFAULT_DATA_DIR):
     for directory in directories:
         for path in directory.glob("*/metadata.json"):
             metadata = json.loads(path.read_text(encoding="utf-8"))
-            if metadata.get("subject_name") == subject_name and metadata.get("status") == "completed":
-                completed.add(metadata.get("experiment_type"))
+            if metadata.get("subject_name") == subject_name:
+                yield metadata
+
+
+def latest_trial_set(subject_name, data_dir=DEFAULT_DATA_DIR):
+    return max((metadata.get("trial_set", 1)
+                for metadata in subject_recordings(subject_name, data_dir)), default=1)
+
+
+def remaining_experiments(subject_name, data_dir=DEFAULT_DATA_DIR, *, trial_set=None):
+    """Find unfinished experiments in a set; older metadata belongs to set 1."""
+    if trial_set is None:
+        trial_set = latest_trial_set(subject_name, data_dir)
+    completed = {
+        metadata.get("experiment_type")
+        for metadata in subject_recordings(subject_name, data_dir)
+        if metadata.get("status") == "completed" and metadata.get("trial_set", 1) == trial_set
+    }
     return [experiment for experiment in EXPERIMENT_TYPES if experiment not in completed]
 
 
-def create_session(subject_name, data_dir=DEFAULT_DATA_DIR):
+def create_session(subject_name, data_dir=DEFAULT_DATA_DIR, *, trial_set=None):
     """Randomly select one of the subject's unfinished experiments."""
-    remaining = remaining_experiments(subject_name, data_dir)
+    if trial_set is None:
+        trial_set = latest_trial_set(subject_name, data_dir)
+    remaining = remaining_experiments(subject_name, data_dir, trial_set=trial_set)
     if not remaining:
         raise ValueError(f"All four experiments are already completed for {subject_name}.")
     experiment_type = random.choice(remaining)
@@ -72,6 +89,7 @@ def create_session(subject_name, data_dir=DEFAULT_DATA_DIR):
     metadata = {
         "subject_name": subject_name,
         "experiment_type": experiment_type,
+        "trial_set": trial_set,
         "session_id": session_id,
         "created_at": created_at.isoformat(),
         "recording_started_at": None,

@@ -53,6 +53,26 @@ def save_trial(root, subject='Alice', group='control', experiment='normal_dom',
 
 
 class ReviewTests(unittest.TestCase):
+    def test_trial_sets_legacy_and_partial_resume(self):
+        from proj.session import EXPERIMENT_TYPES, create_session, latest_trial_set, remaining_experiments, save_metadata
+        with tempfile.TemporaryDirectory() as directory:
+            for experiment in EXPERIMENT_TYPES:
+                save_trial(directory, experiment=experiment, name=experiment)
+            self.assertEqual(latest_trial_set('Alice', directory), 1)
+            self.assertEqual(remaining_experiments('Alice', directory), [])
+            trial, metadata = create_session('Alice', directory, trial_set=2)
+            metadata['status'] = 'completed'
+            save_metadata(trial, metadata)
+            self.assertEqual(latest_trial_set('Alice', directory), 2)
+            remaining = remaining_experiments('Alice', directory)
+            self.assertEqual(len(remaining), 3)
+            self.assertNotIn(metadata['experiment_type'], remaining)
+            interrupted, partial = create_session('Alice', directory)
+            partial['status'] = 'interrupted'
+            save_metadata(interrupted, partial)
+            self.assertEqual(partial['trial_set'], 2)
+            self.assertEqual(remaining_experiments('Alice', directory), remaining)
+
     def test_metrics_known_values_and_gaps(self):
         data = landmarks([0, 1, 2])
         data.handedness = data.handedness.str.lower()
@@ -166,7 +186,7 @@ class ReviewTests(unittest.TestCase):
         cap.read.return_value = (True, np.zeros((480, 640, 3), dtype=np.uint8))
         cv.VideoCapture.return_value = cap
         cv.getWindowProperty.return_value = 1
-        cv.waitKey.side_effect = [32, -1, 32, -1, 32] * 4 + [ord('q')]
+        cv.waitKey.side_effect = [32, -1, 32, -1, 32] * 8 + [ord('q')]
         modules = {'cv2': cv}
         for name in ['mediapipe', 'mediapipe.tasks', 'mediapipe.tasks.python',
                      'mediapipe.tasks.python.vision']:
@@ -185,11 +205,18 @@ class ReviewTests(unittest.TestCase):
                      patch.object(recording, 'detect_hands', return_value=([points], labels)), \
                      patch.object(recording.time, 'perf_counter', side_effect=itertools.count()):
                     paths = recording.record(subject_name='Alice', group='control', dominant_hand='right',
-                                             data_dir=directory, countdown_seconds=1)
-                self.assertEqual(len(paths), 4)
+                                             data_dir=directory, camera_index=2, countdown_seconds=1,
+                                             trial_sets=2)
+                self.assertEqual(len(paths), 8)
+                from proj.session import EXPERIMENT_TYPES, remaining_experiments
+                for trial_set in (1, 2):
+                    set_metadata = [json.loads(path.with_name('metadata.json').read_text()) for path in paths]
+                    self.assertCountEqual([row['experiment_type'] for row in set_metadata
+                                           if row['trial_set'] == trial_set], EXPERIMENT_TYPES)
                 for path in paths:
                     metadata = json.loads(path.with_name('metadata.json').read_text())
                     self.assertEqual(metadata['group'], 'control')
+                    self.assertEqual(metadata['camera_index'], 2)
                     self.assertEqual(metadata['image_width'], 640)
                     self.assertEqual(metadata['image_height'], 480)
                     self.assertEqual(metadata['status'], 'completed')
@@ -204,8 +231,31 @@ class ReviewTests(unittest.TestCase):
                     self.assertEqual(metadata['task_hand'], 'left' if metadata['experiment_type'].endswith('_ndom') else 'right')
                     self.assertTrue(data.handedness_score.eq(.99).all())
                     self.assertEqual(data.timestamp_ms.iloc[0], 0)
-                cv.VideoCapture.assert_called_once()
+                cv.VideoCapture.assert_called_once_with(2)
                 cap.release.assert_called_once()
+                original_metadata = [path.with_name('metadata.json').read_bytes() for path in paths]
+                with patch('builtins.input', return_value='no') as prompt:
+                    self.assertEqual(recording.record(subject_name='Alice', data_dir=directory), [])
+                    prompt.assert_called_once()
+                cv.VideoCapture.assert_called_once_with(2)
+                cv.waitKey.side_effect = [32, -1, 32, -1, 32] * 4 + [ord('q')]
+                with patch('builtins.input', side_effect=['invalid', 'yes']) as prompt, \
+                     patch.object(recording, 'create_landmarker', return_value=Mock()), \
+                     patch.object(recording, 'draw_status'), patch.object(recording, 'draw_landmarks'), \
+                     patch.object(recording, 'play_countdown_sound'), \
+                     patch.object(recording, 'detect_hands', return_value=([points], labels)), \
+                     patch.object(recording.time, 'perf_counter', side_effect=itertools.count()):
+                    appended = recording.record(subject_name='Alice', data_dir=directory, countdown_seconds=1)
+                self.assertEqual(prompt.call_count, 2)
+                self.assertEqual(len(appended), 4)
+                self.assertTrue(set(paths).isdisjoint(appended))
+                self.assertTrue(all(json.loads(path.with_name('metadata.json').read_text())['trial_set'] == 3
+                                    for path in appended))
+                self.assertEqual(original_metadata, [path.with_name('metadata.json').read_bytes() for path in paths])
+                self.assertEqual(remaining_experiments('Alice', directory), [])
+                for invalid in (0, -1, True, 1.5):
+                    with self.assertRaisesRegex(ValueError, 'trial_sets'):
+                        recording.record(trial_sets=invalid)
                 # Q mid-task retains the partial phase log without consuming a condition.
                 cv.waitKey.side_effect = [32, -1, ord('q')]
                 with patch.object(recording, 'create_landmarker', return_value=Mock()), \

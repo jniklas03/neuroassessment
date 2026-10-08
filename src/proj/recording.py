@@ -11,7 +11,8 @@ from .preview import draw_landmarks, draw_status
 from .participants import get_subject_group, get_dominant_hand
 from .trial_phases import PhaseLog
 from .session import (
-    DEFAULT_DATA_DIR, create_session, get_subject_name, remaining_experiments, save_metadata,
+    DEFAULT_DATA_DIR, create_session, get_subject_name, latest_trial_set,
+    remaining_experiments, save_metadata,
 )
 from .sound import play_countdown_sound
 from .tracking import (
@@ -20,7 +21,7 @@ from .tracking import (
 
 
 def record(*, subject_name=None, group=None, dominant_hand=None, data_dir=DEFAULT_DATA_DIR, camera_index=0,
-           countdown_seconds=3, sound_enabled=True, model_path=DEFAULT_MODEL_PATH):
+           countdown_seconds=3, sound_enabled=True, model_path=DEFAULT_MODEL_PATH, trial_sets=1):
     """Run the subject's unfinished experiments in random order in one window.
 
     Space starts the countdown, marks key insertion, then finishes the trial
@@ -28,14 +29,33 @@ def record(*, subject_name=None, group=None, dominant_hand=None, data_dir=DEFAUL
     Trials without the key insertion marker remain unfinished.
     M toggles sound. Each experiment has its own CSV and metadata, with CSV
     timestamps starting at zero. Returns a list of saved CSV Paths.
+
+    camera_index selects the camera input: 0 is the default camera; use 1,
+    2, etc. for other connected cameras. The index is saved in trial metadata.
+    Pass group="control" or group="disease" to set the subject group without
+    prompting. The assignment is saved and must match any existing assignment.
+    trial_sets is the number of sets of four trials to run. An unfinished set
+    is resumed first and counts toward this number. If the latest set is
+    complete, ask whether to append the requested number of new sets.
     """
     if not isinstance(countdown_seconds, int) or countdown_seconds < 1:
         raise ValueError("countdown_seconds must be a positive integer")
+    if isinstance(trial_sets, bool) or not isinstance(trial_sets, int) or trial_sets < 1:
+        raise ValueError("trial_sets must be a positive integer")
     subject_name = get_subject_name(subject_name)
     output_paths = []
-    if not remaining_experiments(subject_name, data_dir):
-        print(f"All four experiments are complete for {subject_name}.")
-        return output_paths
+    trial_set = latest_trial_set(subject_name, data_dir)
+    if not remaining_experiments(subject_name, data_dir, trial_set=trial_set):
+        while True:
+            answer = input(f"{subject_name} has completed their trials. "
+                           f"Record {trial_sets} more set(s) of four trials? (y/n): ").strip().lower()
+            if answer in ("n", "no"):
+                return output_paths
+            if answer in ("y", "yes"):
+                trial_set += 1
+                break
+            print("Enter yes or no.")
+    final_trial_set = trial_set + trial_sets - 1
     group = get_subject_group(subject_name, data_dir, group)
     dominant_hand = get_dominant_hand(subject_name, data_dir, dominant_hand)
     window_name = "Hand Tracking"
@@ -50,14 +70,17 @@ def record(*, subject_name=None, group=None, dominant_hand=None, data_dir=DEFAUL
         cap = cv2.VideoCapture(camera_index)
         resources.callback(cap.release)
         if not cap.isOpened():
-            raise RuntimeError("Could not open webcam")
+            raise RuntimeError(f"Could not open camera input {camera_index}")
         landmarker = create_landmarker(model_path)
         resources.callback(landmarker.close)
 
-        while not exit_requested and remaining_experiments(subject_name, data_dir):
-            directory, metadata = create_session(subject_name, data_dir)
+        while not exit_requested and trial_set <= final_trial_set:
+            if not remaining_experiments(subject_name, data_dir, trial_set=trial_set):
+                trial_set += 1
+                continue
+            directory, metadata = create_session(subject_name, data_dir, trial_set=trial_set)
             experiment_type = metadata["experiment_type"]
-            print(f"Subject: {subject_name} | Experiment: {experiment_type}")
+            print(f"Subject: {subject_name} | Set: {trial_set} | Experiment: {experiment_type}")
             output_path = directory / "hand_data.csv"
             frame_number = 0
             countdown_start = start_time = last_count = None
@@ -172,13 +195,13 @@ def record(*, subject_name=None, group=None, dominant_hand=None, data_dir=DEFAUL
             print(f"Saved to {output_path}")
 
         if not exit_requested:
-            print(f"All four experiments are complete for {subject_name}.")
+            print(f"All requested trial sets are complete for {subject_name}.")
             while True:
                 success, frame = cap.read()
                 if not success:
                     break
                 frame = cv2.flip(frame, 1)
-                draw_status(frame, "All four experiments complete! Q: exit", 2)
+                draw_status(frame, "All requested trial sets complete! Q: exit", 2)
                 cv2.imshow(window_name, frame)
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord("q") or cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
